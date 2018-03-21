@@ -7,9 +7,9 @@
 3. We will compare HMC with metropolis hastings. We can explore extentions to HMC through other implementations like Stan and Edward. If we still have more time remaining we wanted to look into Langevian dynamics which we can implement through Edward (this is in python).
 
 4. The models we want to fit are: 
-  a. The conjugate normal-normal model
-  b. A multimodal normal mixture model
-  c. A logistic regression model
-  d. If we have more time we intend to examine how HMC works with other models.
+  * The conjugate normal-normal model
+  * A multimodal normal mixture model
+  * A logistic regression model
+  * If we have more time we intend to examine how HMC works with other models.
   
 5. We can easily simulate data to check how or methods work. We will try to apply these methods to some real data
