@@ -18,7 +18,7 @@ Our group wants to look further in to MCMC methods other than just metropolis ha
 
 5. We will also try to apply these methods to some real data.
 
-## Inspirations
+## Aspirational Goals
 
 1. We can explore extentions to HMC through other implementations like Stan and Edward. 
 
