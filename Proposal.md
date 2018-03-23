@@ -1,4 +1,4 @@
-STAT 689 Project
+STAT 689 Project:
 Patrick Ding, James Dole, Naveed Merchant
 
 
