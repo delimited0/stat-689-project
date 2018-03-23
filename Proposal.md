@@ -1,3 +1,7 @@
+----
+Author: Patrick Ding, James Dole, Naveed Merchant
+----
+
 # Proposal
 
 Our group wants to look further in to MCMC methods other than just metropolis hastings and gibbs sampling. We want to look into Hamiltonian MC and find out how this method compares to others on different models. By this we mean if we choose different models, do some methods converge more quickly then others or do some methods simply fail to successfully approximate the posterior distribution at all.
