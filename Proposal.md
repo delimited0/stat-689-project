@@ -1,7 +1,6 @@
-----
-title: STAT 689 Project
-author: Patrick Ding, James Dole, Naveed Merchant
-----
+%title STAT 689 Project
+%author Patrick Ding, James Dole, Naveed Merchant
+
 
 # Proposal
 
