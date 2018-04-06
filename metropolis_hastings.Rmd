@@ -1,0 +1,28 @@
+---
+title: "Metropolis Hastings"
+author: "Patrick Ding, James Dole, Naveed Merchant"
+date: "4/6/2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Normal Normal
+
+```{r}
+set.seed(1)
+
+x <- rnorm(1000, 0, 1)
+
+nn_lik <- nn_likelihood(x)
+nn_p <- nn_prior()
+nn_prop <- nn_proposal(.5, .5)
+nn_prop_d <- nn_prop_density()
+
+nn_samples <- metropolis_hastings(c(2, .5), nn_prop, 10000, 
+                                  nn_lik, nn_p, nn_prop_d) 
+
+plot(nn_samples[,1])
+```
