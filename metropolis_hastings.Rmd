@@ -2,7 +2,7 @@
 title: "Metropolis Hastings"
 author: "Patrick Ding, James Dole, Naveed Merchant"
 date: "4/6/2018"
-output: pdf_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -11,18 +11,39 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Normal Normal
 
+$$
+\begin{aligned}
+x_1 \ldots x_n|\mu &\sim N(\mu, 1)
+\\
+\pi(\mu) &\propto 1
+\\
+\mu|x_1 \ldots x_n &\sim N(\bar{x}, 1/n)
+\end{aligned}
+$$
+
 ```{r}
 set.seed(1)
 
-x <- rnorm(1000, 0, 1)
+source("normal-normal.R")
+
+n <- 100
+S <- 5000
+x <- rnorm(n, 0, 1)
 
 nn_lik <- nn_likelihood(x)
 nn_p <- nn_prior()
-nn_prop <- nn_proposal(.5, .5)
+nn_prop <- nn_proposal(.5)
 nn_prop_d <- nn_prop_density()
 
-nn_samples <- metropolis_hastings(c(2, .5), nn_prop, 10000, 
-                                  nn_lik, nn_p, nn_prop_d) 
-
-plot(nn_samples[,1])
+nn_samples <- metropolis_hastings(init_param = 3, 
+                                  likelihood = nn_lik, 
+                                  prior = nn_p,
+                                  proposal = nn_prop, 
+                                  prop_density = nn_prop_d,
+                                  iters = S)
+                                  
+hist(nn_samples$samples[101:S,], probability = TRUE, 
+     main = "MH vs Analytical Posterior", xlab = "x", breaks = 25)
+plot_grid <- seq(-.5, .5, .01)
+lines(plot_grid, dnorm(plot_grid, mean(x), sqrt(1 / n)))
 ```

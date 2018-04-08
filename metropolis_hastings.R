@@ -1,16 +1,37 @@
-metropolis_hastings <- function(init_param, proposal, iters, 
-                                likelihood, prior, prop_density) {
+metropolis_hastings <- function(init_param, likelihood, prior, proposal, 
+                                prop_density, iters) {
+  # metropolis_hastings
+  #
+  ### arguments ###
   # init_param: initial parameters
-  # proposal: function that samples from proposal distribution
-  # iters: number of iterations
+  #
   # likelihood: log likelihood function, function of parameters only
+  #   arguments: params, vector of parameters
+  #   value: log likelihood evaluated at params
+  #
   # prior: log prior function
-  # prop_density: proposal distribution function
-  # return iter x D matrix of samples
+  #   arguments: params, vector of parameters
+  #   value: prior evaluated at params
+  #
+  # proposal: function that samples from proposal distribution
+  #   arguments: params, vector of parameters
+  #   value: proposed parameter vector
+  #
+  # prop_density: proposal density function
+  #   arguments: curr_param, vector of current parameters
+  #              prop_param, vector of proposed parameters
+  #   value: proposal density evaluated at prop_param, given curr_param
+  #
+  # iters: number of iterations
+  #  
+  ### return value ###
+  #   samples - iter x D matrix of samples
+  #   accept_rate - acceptance rate
   
   param_history <- matrix(data = NA, nrow = iters+1, ncol = length(init_param))
   param_history[1, ] <- init_param
   param_curr <- param_history[1, ]
+  accepts <- 0
   
   for (k in 2:iters) {
     propose_param <- proposal(param_curr)
@@ -23,9 +44,10 @@ metropolis_hastings <- function(init_param, proposal, iters,
     u <- runif(1)
     
     param_curr <- (u < a) * propose_param + (u >= a) * param_curr
+    accepts <- accepts + (u < a)
     
     param_history[k, ] <- param_curr
   }
 
-  param_history
+  list(samples = param_history, accept_rate = accepts / iters)
 }

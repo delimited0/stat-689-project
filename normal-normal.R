@@ -2,7 +2,7 @@
 
 nn_likelihood <- function(x) {
   function(params) {
-    sum(dnorm(x, params[1], params[2], log = TRUE))
+    sum(dnorm(x, params[1], 1, log = TRUE))
   }
 }
 
@@ -10,11 +10,9 @@ nn_prior <- function() {
   function(params) 0
 }
 
-nn_proposal <- function(sigma_mean, sigma_sd) {
+nn_proposal <- function(sigma_mean) {
   function(params) {
-    mu <- rnorm(1, mean = params[1], sd = sigma_mean)
-    sigma <- rnorm(1, mean = params[2], sd = sigma_sd)
-    c(mu, sigma * sign(sigma))
+    rnorm(1, mean = params[1], sd = sigma_mean)
   }
 }
 
