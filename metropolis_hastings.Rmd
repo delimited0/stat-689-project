@@ -2,7 +2,7 @@
 title: "Metropolis Hastings"
 author: "Patrick Ding, James Dole, Naveed Merchant"
 date: "4/6/2018"
-output: html_document
+output: rmarkdown::github_document
 ---
 
 ```{r setup, include=FALSE}
