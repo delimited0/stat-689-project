@@ -1,7 +1,7 @@
 ---
 title: "Gibbs Sampling"
 author: "Patrick Ding, James Dole, Naveed Merchant"
-output: rmarkdown::github_document
+output: github_document
 ---
 
 ## Normal inverse gamma
