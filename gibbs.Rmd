@@ -1,0 +1,39 @@
+---
+title: "Gibbs Sampling"
+author: "Patrick Ding, James Dole, Naveed Merchant"
+output: html_notebook
+---
+
+## Normal inverse gamma
+
+$$
+\begin{aligned}
+x_1 \ldots x_n|\mu &\sim N(\mu, \sigma^2)
+\\
+\pi(\mu, \sigma^2) \propto \frac{1}{\sigma^2}
+\\
+\mu, \sigma^2 | x_1 \ldots x_n &\sim 
+  N\text{-}\Gamma^{-1}(\mu = \bar{x}, \lambda = n, 
+  \alpha = (n-3)/2, \beta = n\bar{x}^2/2)
+\\
+\mu|x_1 \ldots x_n &\sim \Gamma^{-1}((n-3)/2, n\bar{x}^2/2)
+\end{aligned}
+$$
+
+```{r}
+source("nig.R")
+library(invgamma)
+
+n <- 50
+S <- 5000
+
+x <- rnorm(n, 0, 5)
+
+nig_samples <- gibbs(c(3, 1), S, nig_cond_mu(x), nig_cond_sigma(x))
+
+plot_grid <- seq(0, 50, .01)
+hist(nig_samples[,2], probability = TRUE, breaks = 100)
+hist(nig_samples[,1], breaks = 100)
+lines(dinvgamma(plot_grid, (n - 3) / 2, n * mean(x) ^ 2 / 2))
+```
+

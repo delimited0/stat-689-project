@@ -1,4 +1,4 @@
-metropolis_hastings <- function(init_param, likelihood, prior, proposal, 
+metropolis_hastings <- function(param_init, likelihood, prior, proposal, 
                                 prop_density, iters) {
   # metropolis_hastings
   #
@@ -28,7 +28,7 @@ metropolis_hastings <- function(init_param, likelihood, prior, proposal,
   #   samples - iter x D matrix of samples
   #   accept_rate - acceptance rate
   
-  param_history <- matrix(data = NA, nrow = iters+1, ncol = length(init_param))
+  param_history <- matrix(data = NA, nrow = iters+1, ncol = length(param_init))
   param_history[1, ] <- init_param
   param_curr <- param_history[1, ]
   accepts <- 0
