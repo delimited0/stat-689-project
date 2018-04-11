@@ -1,5 +1,7 @@
 # normal normal functions
 
+# metropolis hastings ----
+
 nn_likelihood <- function(x) {
   function(params) {
     sum(dnorm(x, params[1], 1, log = TRUE))
@@ -20,3 +22,12 @@ nn_prop_density <- function(sigma_mean, lambda_rate) {
   function(p, q) 0
 }
 
+# HMC ----
+
+nn_U <- function(x) {
+  function(mu) - sum(dnorm(x, mu, 1, log = TRUE))
+}
+
+nn_dU <- function(x) {
+  function(mu) - sum(x - mu)
+}
