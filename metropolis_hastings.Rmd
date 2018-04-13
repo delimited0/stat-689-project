@@ -25,6 +25,8 @@ $$
 set.seed(1)
 
 source("normal-normal.R")
+source("utility.R")
+source("metropolis_hastings.R")
 
 n <- 100
 S <- 5000
@@ -35,14 +37,14 @@ nn_p <- nn_prior()
 nn_prop <- nn_proposal(.5)
 nn_prop_d <- nn_prop_density()
 
-nn_samples <- metropolis_hastings(init_param = 3, 
+nn_samples <- metropolis_hastings(param_init = list(3), 
                                   likelihood = nn_lik, 
                                   prior = nn_p,
                                   proposal = nn_prop, 
                                   prop_density = nn_prop_d,
                                   iters = S)
                                   
-hist(nn_samples$samples[101:S,], probability = TRUE, 
+hist(nn_samples$samples[[1]][101:S, ], probability = TRUE, 
      main = "MH vs Analytical Posterior", xlab = "x", breaks = 25)
 plot_grid <- seq(-.5, .5, .01)
 lines(plot_grid, dnorm(plot_grid, mean(x), sqrt(1 / n)))

@@ -4,7 +4,7 @@
 
 nn_likelihood <- function(x) {
   function(params) {
-    sum(dnorm(x, params[1], 1, log = TRUE))
+    sum(dnorm(x, params[[1]], 1, log = TRUE))
   }
 }
 
@@ -14,7 +14,7 @@ nn_prior <- function() {
 
 nn_proposal <- function(sigma_mean) {
   function(params) {
-    rnorm(1, mean = params[1], sd = sigma_mean)
+    rnorm(1, mean = params[[1]], sd = sigma_mean)
   }
 }
 
@@ -25,9 +25,9 @@ nn_prop_density <- function(sigma_mean, lambda_rate) {
 # HMC ----
 
 nn_U <- function(x) {
-  function(mu) - sum(dnorm(x, mu, 1, log = TRUE))
+  function(params) - sum(dnorm(x, params[[1]], 1, log = TRUE))
 }
 
 nn_dU <- function(x) {
-  function(mu) - sum(x - mu)
+  function(params) - sum(x - params[[1]])
 }

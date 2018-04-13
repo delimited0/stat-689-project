@@ -3,7 +3,7 @@ metropolis_hastings <- function(param_init, likelihood, prior, proposal,
 # metropolis_hastings
 #
 ### arguments ###
-# param_init: initial parameters
+# param_init: list of initial parameters
 #
 # likelihood: log likelihood function, function of parameters only
 #   arguments: params, vector of parameters
@@ -28,9 +28,8 @@ metropolis_hastings <- function(param_init, likelihood, prior, proposal,
 #   samples - iter x D matrix of samples
 #   accept_rate - acceptance rate
   
-  param_history <- matrix(data = NA, nrow = iters+1, ncol = length(param_init))
-  param_history[1, ] <- init_param
-  param_curr <- param_history[1, ]
+  param_history <- make_history(param_init, iters)
+  param_curr <- param_init
   accepts <- 0
   
   for (k in 2:iters) {
@@ -43,10 +42,10 @@ metropolis_hastings <- function(param_init, likelihood, prior, proposal,
     a <- min(1, a) 
     u <- runif(1)
     
-    param_curr <- (u < a) * propose_param + (u >= a) * param_curr
+    param_curr <- ifelse(u < a, propose_param,  param_curr)
     accepts <- accepts + (u < a)
     
-    param_history[k, ] <- param_curr
+    param_history <- save_sample(param_history, param_curr, k)
   }
 
   list(samples = param_history, accept_rate = accepts / iters)

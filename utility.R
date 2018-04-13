@@ -1,0 +1,46 @@
+# utilities
+
+make_history <- function(param_init, iters) {
+# make sample history list and intialize
+# arguments
+# param_init: list of initial parameters
+# iters: number of sampling iterations
+
+  lapply(param_init, function(p) {
+    if (is.vector(p)) {
+      pmat <- matrix(NA, nrow = iters + 1, ncol = length(p))
+      pmat[1, ] <- p
+    }
+    else if (is.matrix(p)) {
+      pmat <- array(NA, dim = c(iters + 1, nrow(p), ncol(p)))
+      pmat[1, , ] <- p
+    }
+    return(pmat)
+  })
+}
+
+save_sample <- function(param_history, param, n) {
+# add sample to history
+# arguments
+# param_history: list of param histories
+# param: list of new parameters
+# n: iteration number
+  
+  mapply(function(ph, p) {
+    if (is.vector(p)) ph[n, ] <- p
+    else if (is.matrix(p)) ph[n, , ] <- p
+    return(ph)
+  }, param_history, param, SIMPLIFY = FALSE)
+}
+
+make_mom_history <- function(param_init, iters) {
+  lapply(param_init, function(p) {
+    if (is.vector(p)) {
+      pmat <- matrix(NA, nrow = iters + 1, ncol = length(p))
+    }
+    else if (is.matrix(p)) {
+      pmat <- array(NA, dim = c(iters + 1, nrow(p), ncol(p)))
+    }
+    return(pmat)
+  })
+}

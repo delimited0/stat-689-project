@@ -2,13 +2,23 @@ hmc <- function(param_init, U, dU, e, L, iters) {
 # hamiltonian monte carlo
 # 
 # arguments #
-# param_init: 
+# param_init: initial parameters
 #
+# U: potential energy function
+#   arguments: params
+# 
+# dU: potential energy gradient function
+#  arguments: params
+# 
+# e: leapfrog step size
+# 
+# L: number of leapfrog steps
+# 
+# iters: number of iterations
 
   mom_history <- matrix(data = NA, nrow = iters+1, ncol = length(param_init))
-  param_history <- matrix(data = NA, nrow = iters+1, ncol = length(param_init))
-  param_history[1, ] <- param_init
-  param_curr <- param_history[1, ]
+  param_history <- make_history(param_init, iters)
+  param_curr <- param_init
   
   for (k in 2:iters) {
     q <- param_curr
@@ -34,7 +44,7 @@ hmc <- function(param_init, U, dU, e, L, iters) {
     if (runif(1) < exp(U_curr + K_curr - U_prop - K_prop))
       param_curr <- q
     
-    param_history[k, ] <- param_curr
+    param_history <- save_sample(param_history, param_curr, k)
   }
   
   return(list(samples = param_history, momentum = mom_history))
