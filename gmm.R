@@ -55,22 +55,20 @@ gmm_proposal<-function(k, mu_sigma, v)
 
 gmm_prop_density <- function(k, mu_sigma, v)
 {
-  function(params_curr, params_prop)
+  function(params_p, params_q)
   {
-    mus_curr <- params_curr[1:k]
-    sigmas_curr <- params_curr[(k+1):(2*k)]
-    piprop_curr <- params_curr[[2*k+1]]
-    mus_prop <- params_prop[1:k]
-    sigmas_prop <- params_prop[(k+1):(2*k)]
-    piprop_prop <- params_prop[[2*k+1]]
+    mus_p <- params_p[1:k]
+    sigmas_p <- params_p[(k+1):(2*k)]
+    piprop_p <- params_p[[2*k+1]]
+    mus_q <- params_q[1:k]
+    sigmas_q <- params_q[(k+1):(2*k)]
+    piprop_q <- params_q[[2*k+1]]
     
-    sigmas_density <- mapply(function(sigma_prop, sigma_curr) {
-      log(dwish(sigma_curr, v, (v - nrow(sigma_prop) - 1) * sigma_prop)) - 
-        log(dwish(sigma_prop, v, (v - nrow(sigma_curr) - 1) * sigma_curr))
-      }, sigmas_prop, sigmas_curr)
+    sigmas_density <- mapply(function(sigma_p, sigma_q) {
+      log(dwish(sigma_p, v, (v - nrow(sigma_q) - 1) * sigma_q)) 
+      }, sigmas_p, sigmas_q)
     
-    piprop_density <- log(ddirichlet(piprop_curr, piprop_prop)) - 
-      log(ddirichlet(piprop_prop, piprop_curr))
+    piprop_density <- log(ddirichlet(piprop_p, piprop_q))
     sum(sigmas_density) + piprop_density
   }
 }
@@ -101,5 +99,5 @@ gmm_prop_density <- function(k, mu_sigma, v)
 
 #propdens1 <- gmm_prop_density(2, .5*diag(2), 4)
 
-#propdens1(list(c(0, 0), c(0, 0), 9 * diag(2), 5 * diag(2), c(1/3, 2/3)),
+# propdens1(list(c(0, 0), c(0, 0), 9 * diag(2), 5 * diag(2), c(1/3, 2/3)),
 #          list(c(0, 0), c(0, 0), diag(2), diag(2), c(1/2, 1/2)))
