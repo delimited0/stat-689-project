@@ -1,6 +1,6 @@
-#Gaussian Mixture functions
+# Gaussian Mixture functions
 
-#Metropolis Hastings     ----
+# Metropolis Hastings ----
 
 library(mvtnorm)
 library(MCMCpack)
@@ -34,7 +34,7 @@ gmm_prior <- function(k, alpha, v, S, mu0)
   }
 }
 
-gmm_proposal<-function(k, mu_sigma, v)
+gmm_proposal <- function(k, mu_sigma, v)
 {
     function(params)
     {
@@ -69,9 +69,7 @@ gmm_prop_density <- function(k, mu_sigma, v)
   }
 }
 
-
-
-## unit tests ----
+# MH unit tests ----
 # 
 # u <- runif(10) < 1/2
 # 
@@ -82,18 +80,24 @@ gmm_prop_density <- function(k, mu_sigma, v)
 # L1 <- gmm_likelihood(draws, 2)
 # L1(list(c(0, 0), c(0, 0), 9 * diag(2), 5 * diag(2), c(1/3, 2/3)))
 # L1(list(c(1, 2), c(8, 10), diag(2), 2 * diag(2), c(1/2, 1/2)))
-
-
+# 
+# 
 #P1 <- gmm_prior(2, c(1/2, 1/2), 2, diag(2), c(0, 0))
 #P1(list(c(0, 0), c(0, 0), 9 * diag(2), 5 * diag(2), c(1/3, 2/3)))
 #P1(list(c(0, 0), c(0, 0), diag(2), diag(2), c(1/2, 1/2)))
-
-
+# 
+# 
 #Prop1 <- gmm_props(2, .5*diag(2), 4)
 #propdraw <- Prop1(list(c(1, 2), c(8, 10), diag(2), 2 * diag(2), c(1/2, 1/2)))
-
-
+# 
+# 
 #propdens1 <- gmm_prop_density(2, .5*diag(2), 4)
-
+# 
 # propdens1(list(c(0, 0), c(0, 0), 9 * diag(2), 5 * diag(2), c(1/3, 2/3)),
 #          list(c(0, 0), c(0, 0), diag(2), diag(2), c(1/2, 1/2)))
+
+
+# Gibbs sampler ----
+
+
+

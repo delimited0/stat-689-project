@@ -1,0 +1,66 @@
+---
+title: "Normal Inverse Gamma model"
+author: "Patrick Ding, James Dole, Naveed Merchant"
+output: github_document
+---
+
+## Normal inverse gamma
+
+$$
+\begin{aligned}
+x_1 \ldots x_n|\mu &\sim N(\mu, \sigma^2)
+\\
+\pi(\mu, \sigma^2) \propto \frac{1}{\sigma^2}
+\\
+\mu, \sigma^2 | x_1 \ldots x_n &\sim 
+  N\text{-}\Gamma^{-1}(\mu = \bar{x}, \lambda = n, 
+  \alpha = (n-3)/2, \beta = n\bar{x}^2/2)
+\\
+\sigma^2|x_1 \ldots x_n &\sim \Gamma^{-1}((n-3)/2, n\bar{x}^2/2)
+\\
+\mu | x_1 \ldots x_n &\sim t_{2\alpha}\bigg(\bar{x},\sqrt{\beta / (\alpha\lambda)}\bigg)
+\end{aligned}
+$$
+
+```{r}
+source("nig.R")
+source("metropolis_hastings.R")
+source("gibbs.R")
+library(invgamma)
+
+n <- 50
+S <- 5000
+
+x <- rnorm(n, 0, 5)
+
+mu_mh_s <- 10
+sigma_mh_s <- 10
+nig_lik <- nig_likelihood(x)
+nig_p <- nig_prior()
+nig_prop <- nig_proposal(mu_mh_s, sigma_mh_s)
+nig_prop_d <- nig_prop_density(mu_mh_s, sigma_mh_s)
+
+nig_mh <- metropolis_hastings(param_init = list(2, 1), 
+                              likelihood = nig_lik, 
+                              prior = nig_p, 
+                              proposal = nig_prop, 
+                              prop_density = nig_prop_d,
+                              iters = S)
+nig_gibbs <- gibbs(c(3, 1), S, nig_cond_mu(x), nig_cond_sigma(x))
+
+plot_grid <- seq(-2, 2, .01)
+hist(nig_mh$samples[[1]][101:S, ], probability = TRUE, breaks = 25)
+lines(plot_grid, sqrt((n-3) * n / (n * mean(x) ^ 2 / 2)) * 
+        dt(plot_grid, df = n - 3) - mean(x))
+
+plot_grid <- seq(.01, 50, .01)
+hist(nig_mh$samples[[2]][101:S, ], probability = TRUE, breaks = 25)
+lines(plot_grid, dinvgamma(plot_grid, (n - 3) / 2, n * mean(x) ^ 2 / 2))
+
+hist(nig_gibbs[, 1], breaks = 25)
+hist(nig_gibbs[, 2], breaks = 25)
+lines(plot_grid, dinvgamma(plot_grid, (n - 3) / 2, n * mean(x) ^ 2 / 2))
+
+
+```
+

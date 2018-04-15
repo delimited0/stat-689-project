@@ -29,11 +29,11 @@ x %>% as_data_frame() %>%
 ```
 
 ```{r}
-S <- 5000
+S <- 1000
 gmm_lik <- gmm_likelihood(x, 3)
 gmm_p <- gmm_prior(3, alpha = rep(1, 3), 5, diag(2), rep(0, 2))
-gmm_prop <- gmm_proposal(3, diag(2), 5)
-gmm_prop_d <- gmm_prop_density(3, diag(2), 5)
+gmm_prop <- gmm_proposal(3, 10 * diag(2), 4)
+gmm_prop_d <- gmm_prop_density(3, 10 * diag(2), 4)
 
 param_init <- list(matrix(rep(0, 2), nrow = 1), 
                    matrix(rep(0, 2), nrow = 1),

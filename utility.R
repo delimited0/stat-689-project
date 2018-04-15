@@ -7,7 +7,7 @@ make_history <- function(param_init, iters) {
 # iters: number of sampling iterations
 
   lapply(param_init, function(p) {
-    if (nrow(p) == 1) {
+    if (is.vector(p) || nrow(p) == 1) {
       pmat <- matrix(NA, nrow = iters + 1, ncol = length(p))
       pmat[1, ] <- p
     }
@@ -27,7 +27,7 @@ save_sample <- function(param_history, param, n) {
 # n: iteration number
   
   mapply(function(ph, p) {
-    if (nrow(p) == 1) ph[n, ] <- p
+    if (is.vector(p) || nrow(p) == 1) ph[n, ] <- p
     else if (is.matrix(p)) ph[n, , ] <- p
     return(ph)
   }, param_history, param, SIMPLIFY = FALSE)
