@@ -15,8 +15,7 @@ gmm_likelihood <- function(x, k)
     sum(log(
       mapply(function(mu, covar) {
         dmvnorm(x, mu, covar)
-      }, 
-      mus, sigmas) %*% piprop
+      }, mus, sigmas) %*% t(piprop)
     ))
   }
 }
@@ -28,12 +27,10 @@ gmm_prior <- function(k, alpha, v, S, mu0)
     mus <- params[1:k]
     sigmas <- params[(k+1):(2*k)]
     piprop <- params[[2*k+1]]
-    sum(mapply(function(mu,covar) {
+    sum(mapply(function(mu, covar) {
       log(diwish(covar, v, S)) + 
         dmvnorm(x = mu, mean = mu0, sigma = covar, log = TRUE) 
     }, mus, sigmas)) + log(ddirichlet(piprop, alpha))
-    
-  
   }
 }
 
@@ -46,12 +43,11 @@ gmm_proposal<-function(k, mu_sigma, v)
       piprop <- params[[2*k+1]]
       mus <- lapply(mus, function(mu) rmvnorm(1, mu, mu_sigma))
       sigmas <- lapply(sigmas, function(sigma) 
-        rWishart(1, v, (v - nrow(sigma) - 1) * sigma))
-      piprop <- rdirichlet(1, piprop)
-      list(mus, sigmas, piprop)
+        riwish(v, (v - nrow(sigma) - 1) * sigma))
+      piprop <- list(rdirichlet(1, piprop))
+      c(mus, sigmas, piprop)
     }
 }
-
 
 gmm_prop_density <- function(k, mu_sigma, v)
 {

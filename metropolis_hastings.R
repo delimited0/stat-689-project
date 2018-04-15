@@ -34,7 +34,6 @@ metropolis_hastings <- function(param_init, likelihood, prior, proposal,
   
   for (k in 2:iters) {
     propose_param <- proposal(param_curr)
-    
     a <- exp(likelihood(propose_param) + prior(propose_param) + 
                prop_density(propose_param, param_curr) -
              likelihood(param_curr) - prior(param_curr) -
@@ -42,7 +41,11 @@ metropolis_hastings <- function(param_init, likelihood, prior, proposal,
     a <- min(1, a) 
     u <- runif(1)
     
-    param_curr <- ifelse(u < a, propose_param,  param_curr)
+    if (is.na(a) | is.infinite(a) | is.nan(a))
+      break
+    
+    if (u < a) param_curr <- propose_param
+    
     accepts <- accepts + (u < a)
     
     param_history <- save_sample(param_history, param_curr, k)

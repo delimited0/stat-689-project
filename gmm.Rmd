@@ -1,0 +1,50 @@
+---
+title: "Gaussian Mixture"
+output: html_notebook
+---
+
+```{r}
+source("gmm.R")
+source("metropolis_hastings.R")
+source("utility.R")
+library(ggplot2)
+library(tidyverse)
+```
+
+## Metropolis Hastings
+
+```{r}
+set.seed(1)
+n <- 100
+prop <- rep(1/3, 3)
+u <- runif(n)
+
+x <- (u < 1/3) * rmvnorm(n, c(-1, -1), .1 * diag(2)) +
+     (1/3 < u) * (u < 2/3) * rmvnorm(n, c(2, 2), .3 * diag(2)) +
+     (u > 2/3) * rmvnorm(n, c(2, -3), .5 * diag(2))
+
+x %>% as_data_frame() %>%
+  ggplot(aes(x = V1, y = V2)) +
+  geom_density_2d()  
+```
+
+```{r}
+S <- 5000
+gmm_lik <- gmm_likelihood(x, 3)
+gmm_p <- gmm_prior(3, alpha = rep(1, 3), 5, diag(2), rep(0, 2))
+gmm_prop <- gmm_proposal(3, diag(2), 5)
+gmm_prop_d <- gmm_prop_density(3, diag(2), 5)
+
+param_init <- list(matrix(rep(0, 2), nrow = 1), 
+                   matrix(rep(0, 2), nrow = 1),
+                   matrix(rep(0, 2), nrow = 1),
+                   diag(2), diag(2), diag(2),
+                   matrix(c(1/2, 1/4, 1/4), nrow = 1))
+gmm_mh <- metropolis_hastings(param_init = param_init, 
+                              likelihood = gmm_lik, 
+                              prior = gmm_p,
+                              proposal = gmm_prop, 
+                              prop_density = gmm_prop_d,
+                              iters = S)
+```
+
