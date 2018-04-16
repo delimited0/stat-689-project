@@ -12074,8 +12074,8 @@ p(t + \epsilon) = p(t + 0.5 \epsilon) + \frac{dp}{dt} 0.5 \epsilon
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="-Hamiltonian-Monte-Carlo-"><center> Hamiltonian Monte Carlo </center><a class="anchor-link" href="#-Hamiltonian-Monte-Carlo-">&#182;</a></h2><p><br></p>
-<p>Suppose we wish to sample from $D$ dimensions $(q1, q2, \ldots, qD)$</p>
-<p>We can cleverly construct $D$ addition dimensions $(p1, p2, \ldots, pD)$</p>
+<p>Suppose we wish to sample from $D$ dimensions $(q_1, q_2, \ldots, q_D)$</p>
+<p>We can cleverly construct $D$ addition dimensions $(p_1, p_2, \ldots, p_D)$</p>
 <p>\begin{aligned}
 \pi(q,p) &amp;= \exp(-H(q,p))
 \\
@@ -12114,10 +12114,72 @@ H(q,p) &amp;= K(p) + U(q)
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="-Hamiltonian-Monte-Carlo-"><center> Hamiltonian Monte Carlo </center><a class="anchor-link" href="#-Hamiltonian-Monte-Carlo-">&#182;</a></h2><p><br></p>
-<p>Transform density into potential energy</p>
-<p>$U = -\log(f)$</p>
+<h2 id="-Hamiltonian-Monte-Carlo-Algorithm-"><center> Hamiltonian Monte Carlo Algorithm </center><a class="anchor-link" href="#-Hamiltonian-Monte-Carlo-Algorithm-">&#182;</a></h2><p><br></p>
+<h4 id="1.-Transform-density-into-potential-energy">1. Transform density into potential energy<a class="anchor-link" href="#1.-Transform-density-into-potential-energy">&#182;</a></h4><p>$U = -\log(f)$</p>
 <p><img src="images/potentialexample.png" alt="potential"></p>
+
+</div>
+</div>
+</div></section></section><section><section>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="-Hamiltonian-Monte-Carlo-Algorithm-"><center> Hamiltonian Monte Carlo Algorithm </center><a class="anchor-link" href="#-Hamiltonian-Monte-Carlo-Algorithm-">&#182;</a></h2><p>1 Transform density into potential energy</p>
+<p>2 Solve Hamilton's equations. Let $K = \frac{1}{2}mv^2$. Calculate $\frac{\partial U}{\partial q}$</p>
+
+</div>
+</div>
+</div><div class="fragment">
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>3 Initialize $q_o$</p>
+
+</div>
+</div>
+</div></div><div class="fragment">
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>4 Sample p (e.g. MVN)</p>
+
+</div>
+</div>
+</div></div><div class="fragment">
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>5 Calculate proposal p and q. Use leapfrog algorithm</p>
+
+</div>
+</div>
+</div></div><div class="fragment">
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>6 Accept-reject according to $\min\big(1, e^{(H_{new} - H_{old})}\big)$</p>
+
+</div>
+</div>
+</div></div></section></section><section><section>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="-HMC-connection-to-MH-"><center> HMC connection to MH </center><a class="anchor-link" href="#-HMC-connection-to-MH-">&#182;</a></h2><p><br></p>
+<p>HMC is like an "intelligent" MH algorithm</p>
+<p>Proposal is symmetric and reversible</p>
+<p>\begin{aligned}
+\min\bigg(1, \frac{\pi(p_{new}, q_{new})}{\pi(p_{old}, q_{old})}\bigg) &amp;= 
+    \min\bigg(1, \frac{e^{-H_{new}}}{e^{-H_{old}}}\bigg)
+\\
+&amp;= \min\big(1, e^{(H_{new} - H_{old})}\big)
+\end{aligned}</p>
 
 </div>
 </div>
@@ -12178,6 +12240,40 @@ X &amp;\sim N(\mu, \Sigma)
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="-HMC-MVN:-Effective-Sample-Size-"><center> HMC MVN: Effective Sample Size </center><a class="anchor-link" href="#-HMC-MVN:-Effective-Sample-Size-">&#182;</a></h2><p><br></p>
+<ul>
+<li>7500 samples</li>
+<li>2500 burn in</li>
+<li>Negative autocorrelation</li>
+</ul>
+<table>
+<thead><tr>
+<th style="text-align:left">Method</th>
+<th style="text-align:right">Effective Sample Size$^1$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">MH</td>
+<td style="text-align:right">119</td>
+</tr>
+<tr>
+<td style="text-align:left">HMC</td>
+<td style="text-align:right">68820</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>ESS averaged over for the dimensions</li>
+</ol>
+
+</div>
+</div>
+</div></section></section><section><section>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="-HMC-Example---Normal-Inverse-Gamma-"><center> HMC Example - Normal Inverse Gamma </center><a class="anchor-link" href="#-HMC-Example---Normal-Inverse-Gamma-">&#182;</a></h2><p><br></p>
 <p>\begin{aligned}
 x_1 \ldots x_n|\mu &amp;\sim N(\mu, \sigma^2)
@@ -12200,10 +12296,18 @@ x_1 \ldots x_n|\mu &amp;\sim N(\mu, \sigma^2)
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="-HMC-Example---Normal-Inverse-Gamma-"><center> HMC Example - Normal Inverse Gamma </center><a class="anchor-link" href="#-HMC-Example---Normal-Inverse-Gamma-">&#182;</a></h2><p><img src="images/nig_trace.png" alt="norm_inv_gamma"></p>
+<h2 id="-HMC-Example---Normal-Inverse-Gamma-"><center> HMC Example - Normal Inverse Gamma </center><a class="anchor-link" href="#-HMC-Example---Normal-Inverse-Gamma-">&#182;</a></h2><p><img src="images/nig_trace.png" style="width: 500px;"></p>
+
+</div>
+</div>
+</div></section></section><section><section>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <table>
 <thead><tr>
-<th style="text-align:left"></th>
+<th style="text-align:left">Method</th>
 <th style="text-align:right">Effective Sample Size</th>
 </tr>
 </thead>
@@ -12222,6 +12326,7 @@ x_1 \ldots x_n|\mu &amp;\sim N(\mu, \sigma^2)
 </tr>
 </tbody>
 </table>
+<p><img src="images/nig_dens.png" style="width: 500px;"></p>
 
 </div>
 </div>

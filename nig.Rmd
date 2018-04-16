@@ -82,6 +82,7 @@ plot_grid <- seq(.01, 50, .01)
 hist(nig_mh$samples[[2]][101:S, ], probability = TRUE, breaks = 25)
 lines(plot_grid, dinvgamma(plot_grid, alpha, bet))
 
+
 plot_grid <- seq(-2, 2, .01)
 hist(nig_gibbs[, 1], breaks = 25, probability = TRUE)
 lines(plot_grid, 
@@ -121,14 +122,23 @@ nig_trace <- ggplot(posts, aes(x = iter, y = sample)) +
 ggsave(plot = nig_trace, filename = "images/nig_trace.png", device = "png",
        scale = .6)
 
-
-foo <- c("MH" = effectiveSize(mh_mu),
+post_tab <- c("MH" = effectiveSize(mh_mu),
   "Gibbs" = effectiveSize(gibbs_mu),
   "HMC" = effectiveSize(hmc_mu)) %>%
   knitr::kable(format = "latex", digits = 1,
                col.names = "Effective Sample Size")
-               
 
+plot_grid <- seq(10, 40, .01)
+true_sigma <- data_frame(x = plot_grid, y = dinvgamma(plot_grid, alpha, bet))
+nig_sigma_dens <- post_sigmas %>%
+  ggplot(aes(x = sample)) +
+    geom_path(data = true_sigma, aes(x, y), color = "blue") +
+    geom_density() +
+    facet_wrap(~ method) +
+    labs(x = "x", y = "density")
+ggsave(plot = nig_sigma_dens, filename = "images/nig_dens.png", device = "png",
+       width = 7, height = 4)
+               
 acf(mh_mu)
 acf(gibbs_mu)
 acf(hmc_mu)
