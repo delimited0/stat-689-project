@@ -12073,7 +12073,7 @@ p(t + \epsilon) = p(t + 0.5 \epsilon) + \frac{dp}{dt} 0.5 \epsilon
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="-Hamiltonian-Monte-Carlo-"><center> Hamiltonian Monte Carlo </center><a class="anchor-link" href="#-Hamiltonian-Monte-Carlo-">&#182;</a></h2><p><br></p>
+<h2 id="-Introduction-to-Hamiltonian-Monte-Carlo-"><center> Introduction to Hamiltonian Monte Carlo </center><a class="anchor-link" href="#-Introduction-to-Hamiltonian-Monte-Carlo-">&#182;</a></h2><p><br></p>
 <p>Suppose we wish to sample from $D$ dimensions $(q_1, q_2, \ldots, q_D)$</p>
 <p>We can cleverly construct $D$ addition dimensions $(p_1, p_2, \ldots, p_D)$</p>
 <p>\begin{aligned}
@@ -12095,7 +12095,7 @@ H(q,p) &amp;= K(p,q) + U(q)
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="-Hamiltonian-Monte-Carlo-"><center> Hamiltonian Monte Carlo </center><a class="anchor-link" href="#-Hamiltonian-Monte-Carlo-">&#182;</a></h2><p><br></p>
+<h2 id="-Introduction-to-Hamiltonian-Monte-Carlo-"><center> Introduction to Hamiltonian Monte Carlo </center><a class="anchor-link" href="#-Introduction-to-Hamiltonian-Monte-Carlo-">&#182;</a></h2><p><br></p>
 <p>\begin{aligned}
 H(q,p) &amp;= K(p,q) + U(q)
 \\
@@ -12173,7 +12173,7 @@ H(q,p) &amp;= K(p) + U(q)
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="-HMC-connection-to-MH-"><center> HMC connection to MH </center><a class="anchor-link" href="#-HMC-connection-to-MH-">&#182;</a></h2><p><br></p>
 <p>HMC is like an "intelligent" MH algorithm</p>
-<p>Proposal is symmetric and reversible</p>
+<p>Proposal is symmetric and reversible if we negate $p_{new}$, which does not affect Hamiltonian</p>
 <p>\begin{aligned}
 \min\bigg(1, \frac{\pi(p_{new}, q_{new})}{\pi(p_{old}, q_{old})}\bigg) &amp;= 
     \min\bigg(1, \frac{e^{-H_{new}}}{e^{-H_{old}}}\bigg)
@@ -12330,7 +12330,7 @@ x_1 \ldots x_n|\mu &amp;\sim N(\mu, \sigma^2)
 
 </div>
 </div>
-</div>
+</div></section></section>
 </div>
 </div>
 
