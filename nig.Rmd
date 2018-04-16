@@ -32,9 +32,14 @@ dnig <- function(m, v, mu, lambda, alpha, bet) {
 
 ```{r warning=FALSE}
 source("nig.R")
+source("utility.R")
+source("hmc.R")
 source("metropolis_hastings.R")
 source("gibbs.R")
+library(ggplot2)
+library(MCMCpack)
 library(invgamma)
+set.seed(1)
 
 n <- 200
 S <- 10000
@@ -65,6 +70,9 @@ nig_gibbs <- gibbs(c(1, 10), S, nig_cond_mu(x), nig_cond_sigma(x))
 nig_hmc <- hmc(param_init = c(1, 10), nig_pot, nig_grad, 
                .05, 50, S)
 
+```
+
+```{r}
 plot_grid <- seq(-4, 4, .01)
 hist(nig_mh$samples[[1]][101:S, ], probability = TRUE, breaks = 100)
 lines(plot_grid, 
@@ -82,5 +90,47 @@ lines(plot_grid,
 plot_grid <- seq(0, 60, .1)
 hist(nig_gibbs[, 2], breaks = 25, xlim = c(0, 100), probability = TRUE)
 lines(plot_grid, dinvgamma(plot_grid, alpha, bet))
+```
+
+## compare posterior means
+
+```{r}
+mh_mu <- mcmc(nig_mh$samples[[1]][1001:(S-1)])
+gibbs_mu <- mcmc(nig_gibbs[1001:(S-1), 1])
+hmc_mu <- mcmc(nig_hmc$samples[1001:(S-1), 1])
+
+mh_sigma <- mcmc(nig_mh$samples[[2]][1001:(S-1)])
+gibbs_sigma <- mcmc(nig_gibbs[1001:(S-1), 2])
+hmc_sigma <- mcmc(nig_hmc$samples[1001:(S-1), 2])
+
+post_mus <- 
+  data_frame(mh = mh_mu, gibbs = gibbs_mu, hmc = hmc_mu) %>%
+  mutate(type = "mean") %>%
+  mutate(iter = row_number()) %>%
+  gather(key = method, value = sample, -iter, -type)
+post_sigmas <- 
+  data_frame(mh = mh_sigma, gibbs = gibbs_sigma, hmc = hmc_sigma) %>%
+  mutate(type = "var") %>%
+  mutate(iter = row_number()) %>%
+  gather(key = method, value = sample, -iter, -type)
+posts <- rbind(post_mus, post_sigmas)
+  
+nig_trace <- ggplot(posts, aes(x = iter, y = sample)) +
+  geom_path() +
+  facet_grid(type ~ method, scales = "free")
+ggsave(plot = nig_trace, filename = "images/nig_trace.png", device = "png",
+       scale = .6)
+
+
+foo <- c("MH" = effectiveSize(mh_mu),
+  "Gibbs" = effectiveSize(gibbs_mu),
+  "HMC" = effectiveSize(hmc_mu)) %>%
+  knitr::kable(format = "latex", digits = 1,
+               col.names = "Effective Sample Size")
+               
+
+acf(mh_mu)
+acf(gibbs_mu)
+acf(hmc_mu)
 ```
 

@@ -41,7 +41,7 @@ hmc <- function(param_init, U, dU, e, L, iters) {
   }
   
   return(list(samples = param_history, momentum = mom_history, 
-              accepts = accepts))
+              accepts = accepts / iters))
 }
 
 hmc_step <- function(a, b, e) {
