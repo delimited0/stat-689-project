@@ -1,0 +1,27 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+mnist <- read_csv("mnist.csv")
+y <- mnist$label
+X <- as.matrix(mnist[, -1])
+
+train_id <- sample(1:nrow(X), nrow(X) / 2, FALSE)
+test_id <- (1:nrow(X))[-train_id]
+
+image(matrix(X[2530,], nrow = 28))
+```
+
+## sampling here
+
+```{r}
+set.seed(1)
+
+
+```
