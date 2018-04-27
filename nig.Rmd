@@ -66,7 +66,7 @@ nig_mh <- metropolis_hastings(param_init = list(1, 10),
                               proposal = nig_prop, 
                               prop_density = nig_prop_d,
                               iters = S)
-nig_gibbs <- gibbs(c(1, 10), S, nig_cond_mu(x), nig_cond_sigma(x))
+nig_gibbs <- gibbs(list(1, 10), S, nig_cond_mu(x), nig_cond_sigma(x))
 nig_hmc <- hmc(param_init = c(1, 10), nig_pot, nig_grad, 
                .05, 50, S)
 
@@ -82,9 +82,8 @@ plot_grid <- seq(.01, 50, .01)
 hist(nig_mh$samples[[2]][101:S, ], probability = TRUE, breaks = 25)
 lines(plot_grid, dinvgamma(plot_grid, alpha, bet))
 
-
-plot_grid <- seq(-2, 2, .01)
-hist(nig_gibbs[, 1], breaks = 25, probability = TRUE)
+plot_grid <- seq(-4, 4, .01)
+hist(nig_gibbs$samples[[1]], breaks = 25, probability = TRUE)
 lines(plot_grid, 
       dt(sqrt(alpha * lambda / bet) * (plot_grid - tau), df = 2 * alpha))
 
@@ -97,11 +96,11 @@ lines(plot_grid, dinvgamma(plot_grid, alpha, bet))
 
 ```{r}
 mh_mu <- mcmc(nig_mh$samples[[1]][1001:(S-1)])
-gibbs_mu <- mcmc(nig_gibbs[1001:(S-1), 1])
+gibbs_mu <- mcmc(nig_gibbs$samples[[1]][1001:(S-1)])
 hmc_mu <- mcmc(nig_hmc$samples[1001:(S-1), 1])
 
 mh_sigma <- mcmc(nig_mh$samples[[2]][1001:(S-1)])
-gibbs_sigma <- mcmc(nig_gibbs[1001:(S-1), 2])
+gibbs_sigma <- mcmc(nig_gibbs$samples[[2]][1001:(S-1)])
 hmc_sigma <- mcmc(nig_hmc$samples[1001:(S-1), 2])
 
 post_mus <- 

@@ -12,17 +12,16 @@ gibbs <- function(param_init, iters, ...) {
 
   conditionals <- list(...)
   
-  param_history <- matrix(data = NA, nrow = iters+1, ncol = length(param_init))
-  param_history[1, ] <- param_init
-  param_curr <- param_history[1, ]
+  param_history <- make_history(param_init, iters)
+  param_curr <- param_init
   
   for (k in 2:iters) {
     for (j in 1:length(conditionals)) {
       cond <- conditionals[[j]]
-      param_curr[j] <- cond(param_curr[-j])
+      param_curr[[j]] <- cond(param_curr[-j])
     }
-    param_history[k, ] <- param_curr
+    param_history <- save_sample(param_history, param_curr, k)
   }
   
-  param_history
+  list(samples = param_history)
 }

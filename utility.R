@@ -29,7 +29,7 @@ save_sample <- function(param_history, param, n) {
   mapply(function(ph, p) {
     if (is.vector(p) || nrow(p) == 1) ph[n, ] <- p
     else if (is.matrix(p)) ph[n, , ] <- p
-    return(ph)
+    ph
   }, param_history, param, SIMPLIFY = FALSE)
 }
 
