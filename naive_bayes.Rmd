@@ -11,17 +11,28 @@ library(tidyverse)
 mnist <- read_csv("mnist.csv")
 y <- mnist$label
 X <- as.matrix(mnist[, -1])
+K <- length(unique(y))
 
 train_id <- sample(1:nrow(X), nrow(X) / 2, FALSE)
 test_id <- (1:nrow(X))[-train_id]
 
 image(matrix(X[2530,], nrow = 28))
+image(matrix(X[which(y == 10)[2456], ], nrow = 28))
 ```
 
 ## sampling here
 
 ```{r}
+source("gibbs.R")
+source("utility.R")
 set.seed(1)
 
+nb_gibbs <- gibbs(param_init = list(pi = rep(.1, K), 
+                                    mus = matrix(0, ncol(X), K),
+                                    sigmas = rep(1, K)),
+                  iters = 10,
+                  nb_cond_pi(y, .1), 
+                  nb_cond_mu(y, X), 
+                  nb_cond_sigmas(y, X, 2, 2))
 
 ```
