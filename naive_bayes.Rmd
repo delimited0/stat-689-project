@@ -3,8 +3,9 @@ title: "R Notebook"
 output: html_notebook
 ---
 
-```{r}
+```{r message = FALSE}
 library(tidyverse)
+library(rstan)
 ```
 
 ```{r}
@@ -16,8 +17,11 @@ K <- length(unique(y))
 train_id <- sample(1:nrow(X), nrow(X) / 2, FALSE)
 test_id <- (1:nrow(X))[-train_id]
 
+mnist_stan_dat <- list(K = K, N = nrow(X), D = ncol(X), x = X, y = y + 1,
+                       alpha = rep(.1, K), a = 2, b = 2)
+
 image(matrix(X[1603, ], nrow = 28))
-y[2603]
+y[1603]
 ```
 
 ## sampling here
@@ -42,6 +46,13 @@ nb_gibbs <- gibbs(nb_param_init,
 nb_mh <- nb_metropolis_hastings(nb_param_init, iters = 100, X, y, .1, 2, 2,
                                 pi_s = 100)
 
+nb_hmc <- stan(file = "naive_bayes.stan", data = mnist_stan_dat, chains = 1)
+
 image(matrix(colMeans(nb_mh$samples$mus[-101, , 6]), nrow = 28))
 image(matrix(colMeans(nb_gibbs$samples$mus[900:1000, , 3]), nrow = 28))
 ```
+
+```{r}
+
+```
+
