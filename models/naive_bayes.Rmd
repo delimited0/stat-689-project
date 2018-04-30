@@ -116,6 +116,7 @@ c("MH" = mh_time[3], "Gibbs" = gibbs_time[3], "HMC" = hmc_time[3]) %>%
   knitr::kable(format = "markdown", digits = 2, col.names = "Seconds")
 
 image(matrix(X_test[1, ], nrow = 28))
+hmc_mus[, 1] %>% matrix(nrow = 8) %>% image
 y_test[1:10]
 ```
 

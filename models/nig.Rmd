@@ -39,6 +39,7 @@ source("gibbs.R")
 library(ggplot2)
 library(MCMCpack)
 library(invgamma)
+library(microbenchmark)
 set.seed(1)
 
 n <- 200
@@ -60,32 +61,38 @@ nig_prop_d <- nig_prop_density(mu_mh_s, sigma_mh_s)
 nig_pot <- nig_U(x)
 nig_grad <- nig_dU(x)
 
-nig_mh <- metropolis_hastings(param_init = list(1, 10), 
+mh_time <- microbenchmark({
+  nig_mh <- metropolis_hastings(param_init = list(1, 10), 
                               likelihood = nig_lik, 
                               prior = nig_p, 
                               proposal = nig_prop, 
                               prop_density = nig_prop_d,
                               iters = S)
-nig_gibbs <- gibbs(list(1, 10), S, nig_cond_mu(x), nig_cond_sigma(x))
-nig_hmc <- hmc(param_init = c(1, 10), nig_pot, nig_grad, 
+}, times = 20)
+gibbs_time <- microbenchmark({
+  nig_gibbs <- gibbs(list(1, 10), S, nig_cond_mu(x), nig_cond_sigma(x))
+}, times = 20)
+hmc_time <- microbenchmark({
+  nig_hmc <- hmc(param_init = c(1, 10), nig_pot, nig_grad, 
                .05, 50, S)
+}, times = 20)
 
 ```
 
 ```{r}
+t_scale <- bet / (lambda * alpha)
 plot_grid <- seq(-4, 4, .01)
 hist(nig_mh$samples[[1]][101:S, ], probability = TRUE, breaks = 100)
 lines(plot_grid, 
-      dt(sqrt(alpha * lambda / bet) * (plot_grid - tau) , df = 2 * alpha))
+      dt((plot_grid - tau) / sqrt(t_scale) , df = 2 * alpha) / sqrt(t_scale))
 
-plot_grid <- seq(.01, 50, .01)
 hist(nig_hmc$samples[,1], probability = TRUE, breaks = 25)
-lines(plot_grid, dinvgamma(plot_grid, alpha, bet))
+lines(plot_grid, 
+      dt((plot_grid - tau) / sqrt(t_scale) , df = 2 * alpha) / sqrt(t_scale))
 
-plot_grid <- seq(-4, 4, .01)
 hist(nig_gibbs$samples[[1]], breaks = 25, probability = TRUE)
 lines(plot_grid, 
-      dt(sqrt(alpha * lambda / bet) * (plot_grid - tau), df = 2 * alpha))
+      dt((plot_grid - tau) / sqrt(t_scale) , df = 2 * alpha) / sqrt(t_scale))
 
 plot_grid <- seq(0, 60, .1)
 hist(nig_gibbs[, 2], breaks = 25, xlim = c(0, 100), probability = TRUE)
@@ -121,11 +128,11 @@ nig_trace <- ggplot(posts, aes(x = iter, y = sample)) +
 ggsave(plot = nig_trace, filename = "images/nig_trace.png", device = "png",
        scale = .6)
 
-post_tab <- c("MH" = effectiveSize(mh_mu),
-  "Gibbs" = effectiveSize(gibbs_mu),
-  "HMC" = effectiveSize(hmc_mu)) %>%
-  knitr::kable(format = "latex", digits = 1,
-               col.names = "Effective Sample Size")
+post_tab <- c("MH" = effectiveSize(mh_mu) / median(mh_time$time) * 1e9,
+  "Gibbs" = effectiveSize(gibbs_mu) / median(gibbs_time$time) * 1e9,
+  "HMC" = effectiveSize(hmc_mu) / median(hmc_time$time) * 1e9) %>%
+  knitr::kable(format = "markdown", digits = 1,
+               col.names = "Effective Sample Size / Time (s)")
 
 plot_grid <- seq(10, 40, .01)
 true_sigma <- data_frame(x = plot_grid, y = dinvgamma(plot_grid, alpha, bet))

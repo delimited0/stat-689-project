@@ -46,7 +46,7 @@ nig_prop_density <- function(mu_s, sigma_s) {
 
 nig_cond_mu <- function(x) {
   function(params) {
-    rnorm(1, mean(x), params[[1]] / length(x))
+    rnorm(1, mean(x), sqrt(params[[1]] / length(x)))
   }
 } 
 
