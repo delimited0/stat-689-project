@@ -6,13 +6,26 @@ output: html_notebook
 ```{r message = FALSE}
 library(tidyverse)
 library(rstan)
+library(reticulate)
+use_python("/Users/patrickding/anaconda3/bin/python")
+np <- reticulate::import("numpy")
 ```
 
 ```{r}
 mnist <- read_csv("mnist.csv")
 y <- mnist$label
 X <- as.matrix(mnist[, -1])
-K <- length(unique(y))
+usps <- readLines("usps") %>%
+  str_replace_all(pattern = "\\d*:", " ") %>%
+  str_trim() %>%
+  str_split(pattern = " ") %>%
+  Map(f = function(x) as.numeric(x[x != ""]), .) %>%
+  do.call(rbind.data.frame, .)
+
+y <- usps[, 1]
+X <- as.matrix(usps[, 2:257])
+  
+image(matrix(X[6, ], nrow = 16, ncol = 16))
 
 train_id <- sample(1:nrow(X), nrow(X) / 100, FALSE)
 test_id <- (1:nrow(X))[-train_id]
@@ -23,12 +36,13 @@ X_test <- X[test_id, ]
 y_test <- y[test_id]
 
 mnist_stan_dat <- list(K = K, N = nrow(X_train), D = ncol(X_train), 
-                       x = X_train, y = y_train + 1,
+                       x = X_train, y = y_train,
                        alpha = rep(.1, K), a = 2, b = 2)
 
 image(matrix(X[1603, ], nrow = 28))
 y[1603]
 ```
+
 
 ## sampling here
 
@@ -54,7 +68,7 @@ nb_mh <- nb_metropolis_hastings(nb_param_init, iters = 10, X_train, y_train,
                                 .1, 2, 2, pi_s = 100)
 
 nb_hmc <- stan(file = "naive_bayes.stan", data = mnist_stan_dat, chains = 1,
-               iter = 10)
+               iter = 2, warmup = 1)
 
 nb_hmc <- nb_hmc_model(y_train, X_train, rep(.1, 10), 2, 2)
 nb_hmc_draws <- greta::mcmc(nb_hmc, n_samples = 2, warmup = 1, verbose = TRUE)
