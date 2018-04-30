@@ -52,11 +52,10 @@ nb_hmc_model <- function(y, X, alpha, a, b) {
   K <- length(unique(y))
   d <- ncol(X)
   N <- nrow(X)
-  ns <- table(y)
   X_k <- lapply(1:K, function(k) as_data(X[y == (k - 1), ]))
   # y <- as_data(y)
   
-  pi = dirichlet(alpha)
+  # pi = dirichlet(alpha)
   sigmas = inverse_gamma(a/2, b/2, dim = K)
   mu = multivariate_normal(rep(0, d), diag(1, nrow = d), dim = K)
   
@@ -68,7 +67,13 @@ nb_hmc_model <- function(y, X, alpha, a, b) {
   }
   # y = categorical(t(pi), dim = N)
   
-  model(pi, sigmas, mu)
+  model(sigmas, mu)
+}
+
+get_greta_mu <- function(K = 10, k, d = 64, draws) {
+  start_idx <- (K+1) + (k - 1)*d
+  end_idx <- start_idx + d - 1
+  as.matrix(draws[, start_idx:end_idx, ])
 }
 
 # prediction ----

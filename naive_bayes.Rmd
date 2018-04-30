@@ -6,18 +6,19 @@ output: html_notebook
 ```{r message = FALSE}
 library(tidyverse)
 library(rstan)
-library(reticulate)
-use_python("/Users/patrickding/anaconda3/bin/python")
-sk <- reticulate::import("sklearn")
-np <- reticulate::import("numpy")
+library(bayesplot)
+library(caret)
 ```
 
 ```{r}
+set.seed(1)
+
 mnist <- read_csv("digits.csv", col_names = FALSE)
 y <- mnist$X65
 X <- as.matrix(mnist[, -65])
+K <- length(unique(y))
 
-image(matrix(X[10,], nrow = 8))
+image(matrix(X[65,], nrow = 8))
 
 # usps <- readLines("usps") %>%
 #   str_replace_all(pattern = "\\d*:", " ") %>%
@@ -38,7 +39,7 @@ X_test <- X[test_id, ]
 y_test <- y[test_id]
 
 mnist_stan_dat <- list(K = K, N = nrow(X_train), D = ncol(X_train), 
-                       x = X_train, y = y_train,
+                       x = X_train, y = y_train + 1,
                        alpha = rep(.1, K), a = 2, b = 2)
 ```
 
@@ -50,37 +51,74 @@ source("gibbs.R")
 source("utility.R")
 source("naive_bayes.R")
 source("naive_bayes_mh.R")
-set.seed(1)
+
 
 
 nb_param_init <- list(pi = rep(.1, K), 
                       mus = matrix(0, ncol(X_train), K),
                       sigmas = rep(1, K))
 
-nb_gibbs <- gibbs(nb_param_init,
-                  iters = 10,
-                  nb_cond_pi(y_train, .1), 
-                  nb_cond_mu(y_train, X_train), 
-                  nb_cond_sigmas(y_train, X_train, 2, 2))
+gibbs_time <- system.time(expr = {
+  nb_gibbs <- gibbs(nb_param_init,
+                    iters = 1000,
+                    nb_cond_pi(y_train, .1), 
+                    nb_cond_mu(y_train, X_train), 
+                    nb_cond_sigmas(y_train, X_train, 2, 2))
+})
 
-nb_mh <- nb_metropolis_hastings(nb_param_init, iters = 10, X_train, y_train, 
-                                .1, 2, 2, pi_s = 100)
+mh_time <- system.time(expr = {
+  nb_mh <- nb_metropolis_hastings(nb_param_init, iters = 1000, X_train, y_train, 
+                                  .1, 2, 2, pi_s = 100)
+})
 
-nb_hmc <- stan(file = "naive_bayes.stan", data = mnist_stan_dat, chains = 1,
-               iter = 2, warmup = 1)
+# hmc_time <- system.time(expr = {
+#   nb_hmc <- stan(file = "naive_bayes.stan", data = mnist_stan_dat, chains = 1,
+#                iter = 1000, warmup = 100, algorithm = "HMC")
+# })
+ 
 
 nb_hmc <- nb_hmc_model(y_train, X_train, rep(.1, 10), 2, 2)
-nb_hmc_draws <- greta::mcmc(nb_hmc, n_samples = 2, warmup = 1, verbose = TRUE)
+
+hmc_time <- system.time(expr = {
+  nb_hmc_draws <- greta::mcmc(nb_hmc, n_samples = 1000, verbose = TRUE)  
+})
+
+
+colMeans(nb_mh$samples$mus[101:1000, , 3]) %>%
+  matrix(nrow = 8) %>% image
+colMeans(get_greta_mu(k = 5, draws = nb_hmc_draws)) %>%
+  matrix(nrow = 8) %>% image
+colMeans(nb_gibbs$samples$mus[101:1000, , 3]) %>%
+  matrix(nrow = 8) %>% image
+
+nb_hmc_draws[[1]][99 ,21:(21+63)] %>%
+  matrix(nrow = 8) %>% image
 
 image(matrix(colMeans(nb_mh$samples$mus[-101, , 6]), nrow = 28))
 image(matrix(colMeans(nb_gibbs$samples$mus[900:1000, , 3]), nrow = 28))
 ```
 
 ```{r}
-predict_nb(nb_gibbs$samples$mus[10, , ], nb_gibbs$samples$sigmas[10, ],
-           X_test[1:10, ])
-predict_nb(nb_mh$samples$mus[10, , ], nb_mh$samples$sigmas[10, ],
-           X_test[1:10, ])
+gibbs_preds <- 
+  predict_nb(apply(nb_gibbs$samples$mus[101:1000, , ], c(2, 3), mean),
+             colMeans(nb_gibbs$samples$sigmas[101:1000,]), 
+             X_test) %>% as.factor()
+           
+mh_preds <- 
+  predict_nb(apply(nb_mh$samples$mus[101:1000, , ], c(2, 3), mean),
+             colMeans(nb_mh$samples$sigmas[101:1000, ]),
+             X_test) %>% as.factor()
+
+hmc_mus <- sapply(1:K, function(k) {
+  colMeans(get_greta_mu(k = k, draws = nb_hmc_draws))
+})
+hmc_sigmas <- colMeans(as.matrix(nb_hmc_draws[, 1:10, ]))
+hmc_preds <- predict_nb(hmc_mus, hmc_sigmas, X_test) %>% as.factor()
+levels(hmc_preds) <- levels(gibbs_preds)
+
+mh_cm <- confusionMatrix(mh_preds, as.factor(y_test))
+gibbs_cm <- confusionMatrix(gibbs_preds, as.factor(y_test))
+hmc_cm <- confusionMatrix(hmc_preds, as.factor(y_test))
 
 image(matrix(X_test[1, ], nrow = 28))
 y_test[1:10]
