@@ -8,11 +8,11 @@ make_history <- function(param_init, iters) {
 
   lapply(param_init, function(p) {
     if (is.vector(p) || nrow(p) == 1) {
-      pmat <- matrix(NA, nrow = iters + 1, ncol = length(p))
+      pmat <- matrix(NA, nrow = iters, ncol = length(p))
       pmat[1, ] <- p
     }
     else if (is.matrix(p)) {
-      pmat <- array(NA, dim = c(iters + 1, nrow(p), ncol(p)))
+      pmat <- array(NA, dim = c(iters, nrow(p), ncol(p)))
       pmat[1, , ] <- p
     }
     return(pmat)
@@ -38,10 +38,10 @@ save_sample <- function(param_history, param, n) {
 make_mom_history <- function(param_init, iters) {
   lapply(param_init, function(p) {
     if (is.vector(p)) {
-      pmat <- matrix(NA, nrow = iters + 1, ncol = length(p))
+      pmat <- matrix(NA, nrow = iters, ncol = length(p))
     }
     else if (is.matrix(p)) {
-      pmat <- array(NA, dim = c(iters + 1, nrow(p), ncol(p)))
+      pmat <- array(NA, dim = c(iters, nrow(p), ncol(p)))
     }
     return(pmat)
   })

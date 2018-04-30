@@ -95,13 +95,13 @@ lines(plot_grid, dinvgamma(plot_grid, alpha, bet))
 ## compare posterior means
 
 ```{r}
-mh_mu <- mcmc(nig_mh$samples[[1]][1001:(S-1)])
-gibbs_mu <- mcmc(nig_gibbs$samples[[1]][1001:(S-1)])
-hmc_mu <- mcmc(nig_hmc$samples[1001:(S-1), 1])
+mh_mu <- coda::mcmc(nig_mh$samples[[1]][1001:(S-1)])
+gibbs_mu <- coda::mcmc(nig_gibbs$samples[[1]][1001:(S-1)])
+hmc_mu <- coda::mcmc(nig_hmc$samples[1001:(S-1), 1])
 
-mh_sigma <- mcmc(nig_mh$samples[[2]][1001:(S-1)])
-gibbs_sigma <- mcmc(nig_gibbs$samples[[2]][1001:(S-1)])
-hmc_sigma <- mcmc(nig_hmc$samples[1001:(S-1), 2])
+mh_sigma <- coda::mcmc(nig_mh$samples[[2]][1001:(S-1)])
+gibbs_sigma <- coda::mcmc(nig_gibbs$samples[[2]][1001:(S-1)])
+hmc_sigma <- coda::mcmc(nig_hmc$samples[1001:(S-1), 2])
 
 post_mus <- 
   data_frame(mh = mh_mu, gibbs = gibbs_mu, hmc = hmc_mu) %>%

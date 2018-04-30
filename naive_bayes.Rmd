@@ -8,6 +8,7 @@ library(tidyverse)
 library(rstan)
 library(bayesplot)
 library(caret)
+library(coda)
 ```
 
 ```{r}
@@ -52,8 +53,6 @@ source("utility.R")
 source("naive_bayes.R")
 source("naive_bayes_mh.R")
 
-
-
 nb_param_init <- list(pi = rep(.1, K), 
                       mus = matrix(0, ncol(X_train), K),
                       sigmas = rep(1, K))
@@ -70,57 +69,64 @@ mh_time <- system.time(expr = {
   nb_mh <- nb_metropolis_hastings(nb_param_init, iters = 1000, X_train, y_train, 
                                   .1, 2, 2, pi_s = 100)
 })
-
-# hmc_time <- system.time(expr = {
-#   nb_hmc <- stan(file = "naive_bayes.stan", data = mnist_stan_dat, chains = 1,
-#                iter = 1000, warmup = 100, algorithm = "HMC")
-# })
  
-
 nb_hmc <- nb_hmc_model(y_train, X_train, rep(.1, 10), 2, 2)
-
 hmc_time <- system.time(expr = {
   nb_hmc_draws <- greta::mcmc(nb_hmc, n_samples = 1000, verbose = TRUE)  
 })
+nb_hmc_summary <- summary(nb_hmc_draws)
+par_means <- nb_hmc_summary$statistics[,"Mean"]
+nb_hmc_mus <- par_means[grepl("mu", rownames(nb_hmc_summary$statistics))] %>%
+  matrix(nrow = 64, ncol = K)
 
+colMeans(nb_mh$samples$mus[101:1000, , 1]) %>%
+  matrix(nrow = 8) %>% image
+colMeans(nb_gibbs$samples$mus[101:1000, , 1]) %>%
+  matrix(nrow = 8) %>% image
+nb_hmc_mus[, 5] %>% 
+  matrix(nrow = 8) %>% image
 
-colMeans(nb_mh$samples$mus[101:1000, , 3]) %>%
-  matrix(nrow = 8) %>% image
-colMeans(get_greta_mu(k = 5, draws = nb_hmc_draws)) %>%
-  matrix(nrow = 8) %>% image
-colMeans(nb_gibbs$samples$mus[101:1000, , 3]) %>%
-  matrix(nrow = 8) %>% image
-
-nb_hmc_draws[[1]][99 ,21:(21+63)] %>%
+nb_hmc_draws[[1]][99 , seq(20, 650, by = 10)] %>%
   matrix(nrow = 8) %>% image
 
 image(matrix(colMeans(nb_mh$samples$mus[-101, , 6]), nrow = 28))
 image(matrix(colMeans(nb_gibbs$samples$mus[900:1000, , 3]), nrow = 28))
 ```
 
+## accuracy and reporting
+
 ```{r}
 gibbs_preds <- 
   predict_nb(apply(nb_gibbs$samples$mus[101:1000, , ], c(2, 3), mean),
              colMeans(nb_gibbs$samples$sigmas[101:1000,]), 
-             X_test) %>% as.factor()
-           
+             X_test) %>% factor(labels = 0:9)
+
 mh_preds <- 
   predict_nb(apply(nb_mh$samples$mus[101:1000, , ], c(2, 3), mean),
              colMeans(nb_mh$samples$sigmas[101:1000, ]),
-             X_test) %>% as.factor()
+             X_test) %>% factor(labels = 0:9)
 
 hmc_mus <- sapply(1:K, function(k) {
   colMeans(get_greta_mu(k = k, draws = nb_hmc_draws))
 })
 hmc_sigmas <- colMeans(as.matrix(nb_hmc_draws[, 1:10, ]))
-hmc_preds <- predict_nb(hmc_mus, hmc_sigmas, X_test) %>% as.factor()
-levels(hmc_preds) <- levels(gibbs_preds)
+hmc_preds <- predict_nb(hmc_mus, hmc_sigmas, X_test) %>%
+  factor(levels = 1:10, labels = 0:9)
 
 mh_cm <- confusionMatrix(mh_preds, as.factor(y_test))
 gibbs_cm <- confusionMatrix(gibbs_preds, as.factor(y_test))
 hmc_cm <- confusionMatrix(hmc_preds, as.factor(y_test))
 
+c("MH" = mh_cm$overall[1], 
+  "Gibbs" = gibbs_cm$overall[1], 
+  "HMC" = hmc_cm$overall[1]) %>%
+  knitr::kable(format = "markdown", digits = 2, col.names = "Accuracy")
+
+c("MH" = mh_time[3], "Gibbs" = gibbs_time[3], "HMC" = hmc_time[3]) %>%
+  knitr::kable(format = "markdown", digits = 2, col.names = "Seconds")
+
 image(matrix(X_test[1, ], nrow = 28))
 y_test[1:10]
 ```
+
 
