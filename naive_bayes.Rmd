@@ -6,9 +6,6 @@ output: html_notebook
 ```{r message = FALSE}
 library(tidyverse)
 library(rstan)
-library(reticulate)
-use_python("/Users/patrickding/anaconda3/bin/python")
-np <- reticulate::import("numpy")
 ```
 
 ```{r}
