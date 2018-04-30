@@ -19,17 +19,7 @@ y <- mnist$X65
 X <- as.matrix(mnist[, -65])
 K <- length(unique(y))
 
-image(matrix(X[65,], nrow = 8))
-
-# usps <- readLines("usps") %>%
-#   str_replace_all(pattern = "\\d*:", " ") %>%
-#   str_trim() %>%
-#   str_split(pattern = " ") %>%
-#   Map(f = function(x) as.numeric(x[x != ""]), .) %>%
-#   do.call(rbind.data.frame, .)
-# 
-# y <- usps[, 1]
-# X <- as.matrix(usps[, 2:257])
+image(matrix(X[1,], nrow = 8)) %>% png(file = "images/digit.png")
 
 train_id <- sample(1:nrow(X), nrow(X) / 2, FALSE)
 test_id <- (1:nrow(X))[-train_id]
