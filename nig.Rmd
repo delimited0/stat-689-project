@@ -79,7 +79,7 @@ lines(plot_grid,
       dt(sqrt(alpha * lambda / bet) * (plot_grid - tau) , df = 2 * alpha))
 
 plot_grid <- seq(.01, 50, .01)
-hist(nig_mh$samples[[2]][101:S, ], probability = TRUE, breaks = 25)
+hist(nig_hmc$samples[,1], probability = TRUE, breaks = 25)
 lines(plot_grid, dinvgamma(plot_grid, alpha, bet))
 
 plot_grid <- seq(-4, 4, .01)
