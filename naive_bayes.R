@@ -2,6 +2,7 @@
 
 library(mvnfast)
 library(MCMCpack)
+library(greta)
 
 # Metropolis hastings ----
 
@@ -45,4 +46,43 @@ nb_cond_sigmas <- function(y, X, a, b) {
   }
 }
 
-# HMC ----
+# hmc ----
+
+nb_hmc_model <- function(y, X, alpha, a, b) {
+  K <- length(unique(y))
+  d <- ncol(X)
+  N <- nrow(X)
+  ns <- table(y)
+  X_k <- lapply(1:K, function(k) as_data(X[y == (k - 1), ]))
+  # y <- as_data(y)
+  
+  pi = dirichlet(alpha)
+  sigmas = inverse_gamma(a/2, b/2, dim = K)
+  mu = multivariate_normal(rep(0, d), diag(1, nrow = d), dim = K)
+  
+  identity <- diag(1, d)
+  
+  for (k in 1:K) {
+    distribution(X_k[[k]]) = 
+      multivariate_normal(t(mu[k,]), sigmas[k] * identity, dim = nrow(X_k[[k]]))
+  }
+  # y = categorical(t(pi), dim = N)
+  
+  model(pi, sigmas, mu)
+}
+
+# prediction ----
+
+predict_nb <- function(mus, sigmas, X_new) {
+# mus: matrix of class means
+# sigmas: vector class variances
+# X_new: matrix of observations
+  K <- length(sigmas)
+  d <- ncol(X_new)
+  probs <- matrix(NA, nrow = nrow(X_new), ncol = K)
+  
+  for (k in 1:K)
+    probs[, k] <- dmvn(X_new, mus[, k], diag(sigmas[k], nrow = d), log = TRUE) 
+  
+  apply(probs, 1, which.max)
+}
