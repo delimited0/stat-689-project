@@ -6,25 +6,30 @@ output: html_notebook
 ```{r message = FALSE}
 library(tidyverse)
 library(rstan)
+library(reticulate)
+use_python("/Users/patrickding/anaconda3/bin/python")
+sk <- reticulate::import("sklearn")
+np <- reticulate::import("numpy")
 ```
 
 ```{r}
-mnist <- read_csv("mnist.csv")
-y <- mnist$label
-X <- as.matrix(mnist[, -1])
-usps <- readLines("usps") %>%
-  str_replace_all(pattern = "\\d*:", " ") %>%
-  str_trim() %>%
-  str_split(pattern = " ") %>%
-  Map(f = function(x) as.numeric(x[x != ""]), .) %>%
-  do.call(rbind.data.frame, .)
+mnist <- read_csv("digits.csv", col_names = FALSE)
+y <- mnist$X65
+X <- as.matrix(mnist[, -65])
 
-y <- usps[, 1]
-X <- as.matrix(usps[, 2:257])
-  
-image(matrix(X[6, ], nrow = 16, ncol = 16))
+image(matrix(X[10,], nrow = 8))
 
-train_id <- sample(1:nrow(X), nrow(X) / 100, FALSE)
+# usps <- readLines("usps") %>%
+#   str_replace_all(pattern = "\\d*:", " ") %>%
+#   str_trim() %>%
+#   str_split(pattern = " ") %>%
+#   Map(f = function(x) as.numeric(x[x != ""]), .) %>%
+#   do.call(rbind.data.frame, .)
+# 
+# y <- usps[, 1]
+# X <- as.matrix(usps[, 2:257])
+
+train_id <- sample(1:nrow(X), nrow(X) / 2, FALSE)
 test_id <- (1:nrow(X))[-train_id]
 
 X_train <- X[train_id, ]
@@ -35,9 +40,6 @@ y_test <- y[test_id]
 mnist_stan_dat <- list(K = K, N = nrow(X_train), D = ncol(X_train), 
                        x = X_train, y = y_train,
                        alpha = rep(.1, K), a = 2, b = 2)
-
-image(matrix(X[1603, ], nrow = 28))
-y[1603]
 ```
 
 

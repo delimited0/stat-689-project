@@ -53,7 +53,7 @@ nb_hmc_model <- function(y, X, alpha, a, b) {
   d <- ncol(X)
   N <- nrow(X)
   ns <- table(y)
-  X_k <- lapply(1:K, function(k) as_data(X[y == k, ]))
+  X_k <- lapply(1:K, function(k) as_data(X[y == (k - 1), ]))
   # y <- as_data(y)
   
   pi = dirichlet(alpha)
