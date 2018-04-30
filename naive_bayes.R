@@ -18,7 +18,7 @@ nb_cond_pi <- function(y, alpha) {
 nb_cond_mu <- function(y, X) {
   ns <- table(y)
   d <- ncol(X)
-  X_k_sum <- lapply(sort(unique(y)) + 1, function(k) colSums(X[y == k, ]))
+  X_k_sum <- lapply(sort(unique(y)), function(k) colSums(X[y == k, ]))
   function(params) {
     sigmas <- params[["sigmas"]]
     mapply(FUN = function(n, sig, X_sum) {
@@ -32,8 +32,8 @@ nb_cond_mu <- function(y, X) {
 nb_cond_sigmas <- function(y, X, a, b) {
   ns <- table(y)
   d <- ncol(X)
-  X_k_sum <- lapply(sort(unique(y)) + 1, function(k) colSums(X[y == k, ]))
-  X_k_norm <- lapply(sort(unique(y)) + 1, function(k) sum(X[y == k, ] ^ 2))
+  X_k_sum <- lapply(sort(unique(y)), function(k) colSums(X[y == k, ]))
+  X_k_norm <- lapply(sort(unique(y)), function(k) sum(X[y == k, ] ^ 2))
   K <- length(unique(y))
   function(params) {
     mus <- params[["mus"]]
@@ -52,7 +52,7 @@ nb_hmc_model <- function(y, X, alpha, a, b) {
   K <- length(unique(y))
   d <- ncol(X)
   N <- nrow(X)
-  X_k <- lapply(1:K, function(k) as_data(X[y == (k - 1), ]))
+  X_k <- lapply(sort(unique(y)), function(k) as_data(X[y == k, ]))
   # y <- as_data(y)
   
   # pi = dirichlet(alpha)
@@ -71,9 +71,9 @@ nb_hmc_model <- function(y, X, alpha, a, b) {
 }
 
 get_greta_mu <- function(K = 10, k, d = 64, draws) {
-  start_idx <- (K+1) + (k - 1)*d
-  end_idx <- start_idx + d - 1
-  as.matrix(draws[, start_idx:end_idx, ])
+  start_idx <- (K+1) + (k - 1)
+  end_idx <- K + d * K
+  as.matrix(draws[, seq(start_idx, end_idx, K)])
 }
 
 # prediction ----

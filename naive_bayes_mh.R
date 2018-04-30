@@ -34,7 +34,7 @@ nb_metropolis_hastings <- function(param_init, iters, X, y, alpha, a, b,
   param_history <- make_history(param_init, iters)
   param_curr <- param_init
   accept_pi <- 0; accept_mu <- 0; accept_sigma <- 0
-  X_sums <- lapply(sort(unique(y)) + 1, function(k) colSums(X[y == k, ]))
+  X_sums <- lapply(sort(unique(y)), function(k) colSums(X[y == k, ]))
   
   for (k in 2:iters) {
     
