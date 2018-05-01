@@ -119,3 +119,21 @@ for (i in 2:10000){
   xtracker[i,] = xold
 }
 })
+
+set.seed(42)
+gmicro = microbenchmark(
+  {
+gtracker = matrix(NA, nrow = 10000, ncol = 21)
+gtracker[1,] = rep(0,21)
+for (i in 2:10000){
+  for(j in 1:21)
+  gtracker[i,j] = rnorm(1, mean  = 11 -j, sd = 1/sqrt(2))
+}
+})
+
+xsizetime = mean(effectiveSize(xtracker))/median(xmicro$time)*10^(9)
+qsizetime =mean(effectiveSize(qtracker))/median(qmicro$time)*10^(9)
+gsizetime =mean(effectiveSize(gtracker))/median(gmicro$time)*10^(9)
+
+qsizetime/xsizetime #HMC is this much computationally efficient than MH
+qsizetime/gsizetime #HMC is this much computationally efficient than Gibbs
